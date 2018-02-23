@@ -20,7 +20,7 @@ ms.author: v-krburl
 # Get started with Azure DataBox using .NET
 
 ## Overview
- This article details how to create a sample .NET console application to initiate a azure data box order.
+ This article details how to create a sample .NET console application to initiate/communicate azure data box order.
 
  ## Prerequisites
 
@@ -36,16 +36,16 @@ Before you begin, ensure that you have:
 * Need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) for your Azure Subscription for this sample application to run it.
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
-    * Application ID
-    * Active Directory key
-    * Subscription ID
-    * Tenant ID
+  * Tenant ID
+  * Subscription ID
+  * Application ID
+  * Active Directory key
 
-<!--## More samples
+## More samples
 For additional examples using Data Box, see [Getting Started with Azure Data Box]() in .NET. You can download the sample application and run it, or browse the code on GitHub.
--->
+
 ## Set up your development environment
-Next, set up your development environment in Visual Studio so you're ready to try the code examples in this guide.
+Set up your development environment in Visual Studio so you're ready to try the code examples in this guide.
 
 ### Create a Windows console application project
 In Visual Studio, create a new Windows console application. The following steps show you how to create a console application in Visual Studio 2015. The steps are similar in other versions of Visual Studio.
