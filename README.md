@@ -53,14 +53,14 @@ In Visual Studio, create a new Windows console application. The following steps 
   1. Launch **Visual Studio 2015**.
   2. Select **File &gt; New &gt; Project**.
 
-    ![Create new project](media/azure-data-box-dotnet-sdk/create-new-project.png)
+  ![Create new project](media/azure-data-box-dotnet-sdk/create-new-project.png)
 
   3. Select **Installed &gt; Templates &gt; Visual C# &gt; Console Application**.
   4. Enter **AzureDataBoxApp** for the **Name**.
   5. In the **Name** field, enter a name for your application and browse **Location**.
   6. Click **OK** to create the project.
 
-    ![Choose Console application](media/azure-data-box-dotnet-sdk/choose-console-app.png)
+  ![Choose Console application](media/azure-data-box-dotnet-sdk/choose-console-app.png)
 
   <!--All code examples in this tutorial can be added to the Main() method of your console application's Program.cs file.-->
 
@@ -68,11 +68,11 @@ Now, add all dlls present in the dlls folder as **References** in the project th
   1. In Visual Studio, go to **View &gt; Solution Explorer**.
   2. Click the arrow to the left of TutorialConsoleApplication project. Click **References** and then right-click to **Add Reference**.
 
-    ![Select Reference in Solution explorer](media/azure-data-box-dotnet-sdk/add-reference-path.png)
+  ![Select Reference in Solution explorer](media/azure-data-box-dotnet-sdk/add-reference-path.png)
 
   3. Browse to the location of the packages folder, select the dll and click **Add**, then click **OK**.
 
-    ![Add reference](media/azure-data-box-dotnet-sdk/add-reference.png)
+  ![Add reference](media/azure-data-box-dotnet-sdk/add-reference.png)
 
 ### Add using directives
 Add the following using statements to the source file `Program.cs` in the project.
