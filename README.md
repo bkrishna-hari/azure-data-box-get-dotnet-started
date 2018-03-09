@@ -45,7 +45,7 @@ Before you begin, ensure that you have:
 For additional examples using Data Box, see [Getting Started with Azure Data Box]() in .NET. You can download the sample application and run it, or browse the code on GitHub.
 
 ## Set up your development environment
-Set up your development environment in Visual Studio so you're ready to try the code examples in this guide.
+Set up your development environment in Visual Studio so you're ready to try examples in this guide.
 
 ### Create a Windows console application project
 In Visual Studio, create a new Windows console application. The following steps show you how to create a console application in Visual Studio 2015. The steps are similar in other versions of Visual Studio.
@@ -56,9 +56,8 @@ In Visual Studio, create a new Windows console application. The following steps 
   ![Create new project](media/azure-data-box-dotnet-sdk/create-new-project.png)
 
   3. Select **Installed &gt; Templates &gt; Visual C# &gt; Console Application**.
-  4. Enter **AzureDataBoxApp** for the **Name**.
-  5. In the **Name** field, enter a name for your application and browse **Location**.
-  6. Click **OK** to create the project.
+  4. In the **Name** field, enter a name for your application and browse **Location**.
+  5. Click **OK** to create the project.
 
   ![Choose Console application](media/azure-data-box-dotnet-sdk/choose-console-app.png)
 
@@ -89,16 +88,15 @@ Add the following using statements to the source file `Program.cs` in the projec
 Add the following statements before `Main()` method:
 
   ```
-  private static string subscriptionId;
   private static string tenantId;
-  private static string appliationId;
-  private static string aadKey;
+  private static string subscriptionId;
+  private static string aadApplicationId;
+  private static string aadApplicationKey;
   ```
-
 
 ### Initialize Data Box Management Client
 The DataBoxManagementClient class enables you to create a new Data Box order or job, retrieve order details, cancel/delete order, validate shipping address and etc.
-Add below code after `Main()` method in `Program.cs` file.
+Add below code after `Main()` method:
 
   ```
   static DataBoxManagementClient InitializeDataBoxClient()
@@ -106,11 +104,11 @@ Add below code after `Main()` method in `Program.cs` file.
       const string frontDoorUrl = "https://login.microsoftonline.com";
       const string tokenUrl = "https://management.azure.com";
 
-      // Setup the configuration parameters.
-      subscriptionId = "<sub-id>";            // Input Subscription ID.
-      tenantId = "<tenant-id>";               // Input Tenant ID of the subscription.
-      aadApplicationId = "<aad-app-id>";      // Input Application ID for which the service principal was set.
-      aadApplicationKey = "<aad-app-key>";    // Input Application authentication key for which the AAD application.
+      // Setup the configuration parameters
+      tenantId = "<tenant-id>";               // Input Tenant ID of the subscription
+      subscriptionId = "<sub-id>";            // Input Subscription ID
+      aadApplicationId = "<aad-app-id>";      // Input Application ID for which the service principal was set
+      aadApplicationKey = "<aad-app-key>";    // Input Application authentication key for which the AAD application
 
       // Validates AAD ApplicationId and returns token
       var credentials = ApplicationTokenProvider.LoginSilentAsync(
@@ -138,22 +136,25 @@ Add below code after `Main()` method in `Program.cs` file.
 Below code fetches information about the specified order.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group on which to retrieve job info
-  string jobName = "<job-name>"; // Input the name of the job within the specified resource group
-  string expand = "details";
+  static void Main(string[] args)
+  {
+      string resourceGroupName = "<resource-group-name>"; // Name of the resource group on which to retrieve job details
+      string jobName = "<job-name>"; // Name of the job within the specified resource group
+      string expand = "details";     // Gets job complete info (details) or basic (null) info
 
-  // Initializes a new instance of the DataBoxManagementClient class.
-  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
+      // Initializes a new instance of the DataBoxManagementClient class.
+      DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  // Gets information about the specified job.
-  JobResource jobResource = JobsOperationsExtensions.Get(
-                              dataBoxManagementClient.Jobs,
-                              resourceGroupName,
-                              jobName,
-                              expand);
+      // Gets information about the specified job.
+      JobResource jobResource = JobsOperationsExtensions.Get(
+                                  dataBoxManagementClient.Jobs,
+                                  resourceGroupName,
+                                  jobName,
+                                  expand);
+  }
   ```
 
-Here `$expand` variable is supported on details parameter for order, which provides details on the order stages, contact information and etc. Otherwise set `null` value to `$expand` variable.
+In Get call, `$expand` variable is supported on `details` parameter for order, which returns order stages, contact information and etc. Otherwise set `null` value to `$expand` variable which gets only basic information.
 
 ### List orders
 Below code fetches list of available orders under the subscription.
@@ -215,6 +216,83 @@ Below code fetches list of available orders under Resource group.
   } while (!(string.IsNullOrEmpty(jobPageList.NextPageLink)));
   ```
 
+### Validate shipping address
+Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address.
+
+  ```
+  AddressType addressType = <address-typ>; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
+  string companyName = "comapany-name";       // (Optional) Input the name of the company
+  string streetAddress1 = "<stree-address1>"; // Input the street address1
+  string streetAddress2 = "<stree-address2>"; // (Optional) Input the street address2
+  string streetAddress3 = "<stree-address3>"; // (Optional) Input the street address3
+  string postalCode = "<postal-code>";        // Input the area postal code
+  string city = "<city-name>";                // Input the name of the city
+  string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
+  CountryCode countryCode = <country-code>;   // Choose the Country code from CountryCode list. eg. CountryCode.US
+
+  ShippingAddress shippingAddress = new ShippingAddress()
+  {
+      AddressType = addressType,
+      CompanyName = companyName,
+      StreetAddress1 = streetAddress1,
+      StreetAddress2 = streetAddress2,
+      StreetAddress3 = streetAddress3,
+      City = city,
+      StateOrProvince = stateOrProvinceCode,
+      Country = countryCode.ToString(),
+      PostalCode = postalCode
+  };
+
+  // Input the location on which shipping address to be validated; Support locations: West Europe, West Central US and West US
+  string location = "<location>";
+
+  // Initializes a new instance of the DataBoxManagementClient class
+  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
+  dataBoxManagementClient.Location = location;
+
+  ValidateAddress validateAddress = new ValidateAddress(
+                                      shippingAddress,
+                                      DeviceType.Pod);
+
+  AddressValidationOutput addressValidationOutput = ServiceOperationsExtensions.ValidateAddressMethod(
+                                                      dataBoxManagementClient.Service,
+                                                      validateAddress);
+
+  // Checks validation address result
+  if(addressValidateResult.ValidationStatus != AddressValidationStatus.Valid)
+  {
+      Console.WriteLine("Address validation status: {0}", addressValidateResult.ValidationStatus);
+
+      // Prints alternate address(es)
+      if (addressValidateResult.ValidationStatus == AddressValidationStatus.Ambiguous)
+      {
+          Console.WriteLine("\nALTERNATE ADDRESS(ES):");
+          foreach (ShippingAddress address in addressValidateResult.AlternateAddresses)
+          {
+              Console.WriteLine("\nAddress type: {0}", address.AddressType);
+              if (!(string.IsNullOrEmpty(address.CompanyName)))
+                  Console.WriteLine("Company name: {0}", address.CompanyName);
+              if (!(string.IsNullOrEmpty(address.StreetAddress1)))
+                  Console.WriteLine("Street address1: {0}", address.StreetAddress1);
+              if (!(string.IsNullOrEmpty(address.StreetAddress2)))
+                  Console.WriteLine("Street address2: {0}", address.StreetAddress2);
+              if (!(string.IsNullOrEmpty(address.StreetAddress3)))
+                  Console.WriteLine("Street address3: {0}", address.StreetAddress3);
+              if (!(string.IsNullOrEmpty(address.City)))
+                  Console.WriteLine("City: {0}", address.City);
+              if (!(string.IsNullOrEmpty(address.StateOrProvince)))
+                  Console.WriteLine("State/Province: {0}", address.StateOrProvince);
+              if (!(string.IsNullOrEmpty(address.Country)))
+                  Console.WriteLine("Country: {0}", address.Country);
+              if (!(string.IsNullOrEmpty(address.PostalCode)))
+                  Console.WriteLine("Postal code: {0}", address.PostalCode);
+              if (!(string.IsNullOrEmpty(address.ZipExtendedCode)))
+                  Console.WriteLine("Zip extended code: {0}", address.ZipExtendedCode);
+          }
+      }
+  }
+  ```
+
 ### Create a new Order
 Below code creates a new Azure Data Box order.
 
@@ -263,6 +341,10 @@ Below code creates a new Azure Data Box order.
 
   List<DestinationAccountDetails> destinationAccountDetails = new List<DestinationAccountDetails>();
   destinationAccountDetails.Add(new DestinationAccountDetails(string.Concat("/subscriptions/", subscriptionId.ToLower(), "/resourceGroups/", storageAccResourceGroupName.ToLower(), "/providers/", storageAccProviderType, "/storageAccounts/", storageAccName.ToLower()), accountType));
+
+  /// Note.
+  /// if you need multiple destination storage accounts,
+  /// add other storage account details below same as above.
 
   PodJobDetails jobDetails = new PodJobDetails(
                               contactDetails,
@@ -332,7 +414,7 @@ Below code creates a new Azure Data Box order.
 
   >[!Note:]
   > * Order name must be between 3 and 24 characters in length and use any alphanumeric and underscore only.
-  > * Azure Data Box order supports multiple destination Storage accounts and all storage accounts should be in the same Azure Data Box order's subscription.
+  > * Azure Data Box order supports maximum 10 destination Storage accounts and all storage accounts should be in the same Azure Data Box order's subscription and location (region).
   > * Good to validate the shipping address using ValidateAddressMethod call before Create order call which verifies the shipping address and returns Validation status. Also provides alternate address(es) based on input address in `Ambiguous` state.
 
 ### Cancel order
@@ -371,49 +453,6 @@ Below code deletes the order
     dataBoxManagementClient.Jobs,
     resourceGroupName,
     jobName);
-  ```
-
-### Validate shipping address
-Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address.
-
-  ```
-  AddressType addressType = <address-typ>; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
-  string companyName = "comapany-name";       // (Optional) Input the name of the company
-  string streetAddress1 = "<stree-address1>"; // Input the street address1
-  string streetAddress2 = "<stree-address2>"; // (Optional) Input the street address2
-  string streetAddress3 = "<stree-address3>"; // (Optional) Input the street address3
-  string postalCode = "<postal-code>";        // Input the area postal code
-  string city = "<city-name>";                // Input the name of the city
-  string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
-  CountryCode countryCode = <country-code>;   // Choose the Country code from CountryCode list. eg. CountryCode.US
-
-  ShippingAddress shippingAddress = new ShippingAddress()
-  {
-      AddressType = addressType,
-      CompanyName = companyName,
-      StreetAddress1 = streetAddress1,
-      StreetAddress2 = streetAddress2,
-      StreetAddress3 = streetAddress3,
-      City = city,
-      StateOrProvince = stateOrProvinceCode,
-      Country = countryCode.ToString(),
-      PostalCode = postalCode
-  };
-
-  // Input the location on which shipping address to be validated; Support locations: West Europe, West Central US and West US
-  string location = "<location>";
-
-  // Initializes a new instance of the DataBoxManagementClient class
-  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
-  dataBoxManagementClient.Location = location;
-
-  ValidateAddress validateAddress = new ValidateAddress(
-                                      shippingAddress,
-                                      DeviceType.Pod);
-
-  AddressValidationOutput addressValidationOutput = ServiceOperationsExtensions.ValidateAddressMethod(
-                                                      dataBoxManagementClient.Service,
-                                                      validateAddress);
   ```
 
 ### Download shipping address
