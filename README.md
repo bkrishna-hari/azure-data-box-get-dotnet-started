@@ -26,11 +26,14 @@ ms.author: v-krburl
 
 Before you begin, ensure that you have:
 *	A computer running:
-
     - [Microsoft Visual Studio](https://www.visualstudio.com/)
-    - [Azure Data Box Client Library for .NET](https://azure.microsoft.com/en-in/services/storage/databox/)
-    <!--- Azure Powershell. [Download Azure Powershell](https://azure.microsoft.com/documentation/articles/powershell-install-configure/).-->
-*	All the required dlls. Download these dlls from the [GitHub repository](https://github.com/Azure-Samples/storsimple-dotnet-data-manager-get-started/tree/master/Data_Manager_Job_Run/dlls?raw=true).
+    - Azure Data Box Client Library for .NET, download below dependent dlls
+      - [Microsoft.Azure.Management.DataBox.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Azure.Management.DataBox.dll?raw=true)
+      - [Microsoft.IdentityModel.Clients.ActiveDirectory.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.IdentityModel.Clients.ActiveDirectory.dll?raw=true)
+      - [Microsoft.Rest.ClientRuntime.Azure.Authentication.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll?raw=true)
+      - [Microsoft.Rest.ClientRuntime.Azure.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.Azure.dll?raw=true)
+      - [Microsoft.Rest.ClientRuntime.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.dll?raw=true)
+      - [Newtonsoft.Json.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Newtonsoft.Json.dll?raw=true)
 
 ## Setup Azure Service Principal
 * Need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) for your Azure Subscription for this sample application to run it.
