@@ -44,8 +44,8 @@ Before you begin, ensure that you have:
   * Application ID
   * Active Directory key
 
-## More samples
-For additional examples using Data Box, see [Getting Started with Azure Data Box](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/samples/MyVSProjects.zip?raw=true) in .NET. You can download the sample application and run it, or browse the code on GitHub.
+## Code sample
+[Getting Started with Azure Data Box](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/samples/TutorialConsoleApplication.zip?raw=true) project in .NET. You can download the sample application and run it.
 
 ## Set up your development environment
 Set up your development environment in Visual Studio so you're ready to try examples in this guide.
