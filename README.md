@@ -27,16 +27,16 @@ ms.author: v-krburl
 Before you begin, ensure that you have:
 *	A computer running:
     - [Microsoft Visual Studio](https://www.visualstudio.com/)
-    - Azure Data Box Client Library for .NET, download below dependent dlls
+    - Azure Data Box Client Library for .NET, download below dependent dll
       - [Microsoft.Azure.Management.DataBox.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Azure.Management.DataBox.dll?raw=true)
-      - [Microsoft.IdentityModel.Clients.ActiveDirectory.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.IdentityModel.Clients.ActiveDirectory.dll?raw=true)
-      - [Microsoft.Rest.ClientRuntime.Azure.Authentication.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll?raw=true)
-      - [Microsoft.Rest.ClientRuntime.Azure.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.Azure.dll?raw=true)
-      - [Microsoft.Rest.ClientRuntime.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Rest.ClientRuntime.dll?raw=true)
-      - [Newtonsoft.Json.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Newtonsoft.Json.dll?raw=true)
 
 ## Setup Azure Service Principal
 * Need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) for your Azure Subscription for this sample application to run it.
+
+  >[!Note:]
+  > * Require **Contributor** role to the aad application that you created for this sample application to run it.
+  > * In above aritcle, it describes how to assign a "Reader" role, in the same way assign a "Contributor" role.
+
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
   * Tenant ID
@@ -64,22 +64,65 @@ In Visual Studio, create a new Windows console application. The following steps 
 
   ![Choose Console application](media/azure-data-box-dotnet-sdk/choose-console-app.png)
 
-  <!--All code examples in this tutorial can be added to the Main() method of your console application's Program.cs file.-->
+Now, add Azure Data Box dll present in the [dlls folder](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/tree/master/dlls) as **References** in the project that you created. To add the dll file, perform the following:
 
-Now, add all dlls present in the dlls folder as **References** in the project that you created. To add the dll files, perform the following:
   1. In Visual Studio, go to **View &gt; Solution Explorer**.
   2. Click the arrow to the left of TutorialConsoleApplication project. Click **References** and then right-click to **Add Reference**.
 
   ![Select Reference in Solution explorer](media/azure-data-box-dotnet-sdk/add-reference-path.png)
 
-  3. Browse to the location of the packages folder, select the dll and click **Add**, then click **OK**.
+  3. Browse to the location of the dll that you downloaded, select the dll and click **Add**, then click **OK**.
 
   ![Add reference](media/azure-data-box-dotnet-sdk/add-reference.png)
+
+
+### Configure your confirguration settings
+  To configure your configuration settings, open the `app.config` file from Solution Explorer in Visual Studio. Add the contents of the <appSettings> element shown below. Replace `tenatnt-id` with the tenant ID of the subscription, `subscription-id` with the subscription ID, `aad-application-id` with application ID for which the service principal was set, and `aad-application-key` with application authentication key for which the AAD application:
+
+  ```
+  <configuration>
+    <startup>
+      <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.6.2" />
+    </startup>
+    <appSettings>
+      <!--Input the TenantID of the subscription-->
+      <add key="TenantId" value="tenant-id" />
+
+      <!--Input SubscriptionID-->
+      <add key="SubscriptionId" value="subscription-id" />
+
+      <!--Input application ID for which the service principal was set-->
+      <add key="AADApplicationId" value="aad-application-id" />
+
+      <!--Input application authentication key for which the AAD application-->
+      <add key="AADApplicationKey" value="aad-application-key" />
+    </appSettings>
+  </configuration>
+  ```
+
+
+### Use NuGet to install the required packages
+Below packages you need to reference in your project to complete this tutorial:
+
+  * [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/). This package is a popular high-performance JSON framework for .NET.
+  * [Microsoft.Rest.ClientRuntime.Azure](https://www.nuget.org/packages/Microsoft.Rest.ClientRuntime.Azure). This package provides common error handling, tracing, and HTTP/REST-based pipeline manipulation.
+  * [Microsoft.Rest.ClientRuntime.Azure.Authentication](https://www.nuget.org/packages/Microsoft.Rest.ClientRuntime.Azure.Authentication). This package provides ADAL (Azure Active Directory Authentication Library) based authentication for Azure management client libraries.
+  * [Microsoft.WindowsAzure.ConfigurationManager](https://www.nuget.org/packages/Microsoft.WindowsAzure.ConfigurationManager). This package provides a class for parsing a connection string in a configuration file, regardless of where your application is running.
+
+You can use NuGet to obtain all packages. Follow these steps:
+
+  1. Right-click your project in **Solution Explorer**, and choose **Manage NuGet Packages** **&gt;** Click **Browse** tab.
+  2. Searh online for "Newtonsoft.Json", and click **Install** to install the Newtonsoft Json library.
+  3. Searh online for "Microsoft.Rest.ClientRuntime.Azure", and click **Install** to install the Microsoft Azure Client Runtime library.
+  4. Searh online for "Microsoft.Rest.ClientRuntime.Azure.Authentication", and click **Install** to install the Microsoft Azure Authentication library and its dependencies.
+  5. Search online for "WindowsAzure.ConfigurationManager", and click **Install** to install the Microsoft Azure Configuration Manager Library.
+
 
 ### Add using directives
 Add the following using statements to the source file `Program.cs` in the project.
 
   ```
+  using Microsoft.Azure;
   using Microsoft.Azure.Management.DataBox;
   using Microsoft.Azure.Management.DataBox.Models;
   using Microsoft.Rest;
@@ -107,11 +150,11 @@ Add below code after `Main()` method:
       const string frontDoorUrl = "https://login.microsoftonline.com";
       const string tokenUrl = "https://management.azure.com";
 
-      // Setup the configuration parameters
-      tenantId = "<tenant-id>";               // Input Tenant ID of the subscription
-      subscriptionId = "<sub-id>";            // Input Subscription ID
-      aadApplicationId = "<aad-app-id>";      // Input Application ID for which the service principal was set
-      aadApplicationKey = "<aad-app-key>";    // Input Application authentication key for which the AAD application
+      // Set the configuration parameters.
+      tenantId = CloudConfigurationManager.GetSetting("TenantId");
+      subscriptionId = CloudConfigurationManager.GetSetting("SubscriptionId");
+      aadApplicationId = CloudConfigurationManager.GetSetting("AADApplicationId");
+      aadApplicationKey = CloudConfigurationManager.GetSetting("AADApplicationKey");
 
       // Validates AAD ApplicationId and returns token
       var credentials = ApplicationTokenProvider.LoginSilentAsync(
@@ -575,14 +618,14 @@ Below code gives list of supported data box service regions and storage account 
 
   ```
   // Input the location on which fetch the list of support regions. Support locations: West Europe, West Central US and West US
-  string location = string location = "<location>";
+  string location = "<location>";
 
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
   dataBoxManagementClient.Location = location;
 
   // Choose the Country code from CountryCode list. eg. CountryCode.US
-  CountryCode countryCode = <country-code>;
+  CountryCode countryCode = "<country-code>";
 
   // Initializes a new instance of the RegionAvailabilityInput class.
   RegionAvailabilityInput regionAvailabilityInput = new RegionAvailabilityInput(
