@@ -34,9 +34,9 @@ Before you begin, ensure that you have:
 * Need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) for your Azure Subscription for this sample application to run it.
 
   >[!Note:]
-  > * Require **`Contributor`** role to the aad application that you created.
-  > * In above aritcle, it describes how to assign a "Reader" role, in the same way assign a "Contributor" role.
-
+  > * Assign **`Contributor`** role to the aad application that you created.
+  > * In above aritcle, it describes how to assign a "Reader" role, in the same way assign "Contributor" role.
+  
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
   * Tenant ID
