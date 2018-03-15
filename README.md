@@ -36,7 +36,7 @@ Before you begin, ensure that you have:
   >[!Note:]
   > * Assign **`Contributor`** role to the aad application that you created.
   > * In above aritcle, it describes how to assign a "Reader" role, in the same way assign "Contributor" role.
-  
+
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
   * Tenant ID
@@ -464,7 +464,7 @@ Below code creates a new Azure Data Box order.
   > * Good to validate the shipping address using ValidateAddressMethod call before Create order call which verifies the shipping address and returns Validation status. Also provides alternate address(es) based on input address in `Ambiguous` state.
 
 ### Cancel order
-Below code cancels the order
+Below code cancels the order. This will be allowed only until the order is not processed.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -474,18 +474,28 @@ Below code cancels the order
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  CancellationReason cancellationReason = new CancellationReason(reason);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
 
-  // Initiate to cancel job
-  JobsOperationsExtensions.Cancel(
-      dataBoxManagementClient.Jobs,
-      resourceGroupName,
-      jobName,
-      cancellationReason);
+  if (jobResource.IsCancellable != null
+      && (bool) jobResource.IsCancellable)
+  {
+      CancellationReason cancellationReason = new CancellationReason(reason);
+
+      // Initiate to cancel job
+      JobsOperationsExtensions.Cancel(
+          dataBoxManagementClient.Jobs,
+          resourceGroupName,
+          jobName,
+          cancellationReason);
+  }
   ```
 
 ### Delete order
-Below code deletes the order
+Below code deletes the order. This will be allowed only when the order is in completed or cancelled status.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -494,11 +504,22 @@ Below code deletes the order
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  // Initiate to delete job
-  JobsOperationsExtensions.Delete(
-    dataBoxManagementClient.Jobs,
-    resourceGroupName,
-    jobName);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
+
+  if (jobResource.Status == StageName.Cancelled
+      || jobResource.Status == StageName.Completed
+      || jobResource.Status == StageName.CompletedWithErrors)
+  {
+      // Initiate to delete job
+      JobsOperationsExtensions.Delete(
+        dataBoxManagementClient.Jobs,
+        resourceGroupName,
+        jobName);
+  }
   ```
 
 ### Download shipping address
@@ -511,19 +532,28 @@ Below code provides shipping label sas uri. This will be available only after de
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  // Initiate to download shipping label
-  ShippingLabelDetails shippingLabelDetails = JobsOperationsExtensions.DownloadShippingLabelUri(
-                                                dataBoxManagementClient.Jobs,
-                                                resourceGroupName,
-                                                jobName);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
 
-  // Print the shipping label
-  Console.WriteLine("Shipping label url: \n{0}", shippingLabelDetails.ShippingLabelSasUri);
-  Console.ReadLine();
+  if (jobResource.Status == StageName.Delivered)
+  {
+      // Initiate to download shipping label
+      ShippingLabelDetails shippingLabelDetails = JobsOperationsExtensions.DownloadShippingLabelUri(
+                                                    dataBoxManagementClient.Jobs,
+                                                    resourceGroupName,
+                                                    jobName);
+
+      // Print the shipping label uri
+      Console.WriteLine("Shipping label url: \n{0}", shippingLabelDetails.ShippingLabelSasUri);
+      Console.ReadLine();
+  }
   ```
 
 ### Book shipment pickup
-Below code initiates the shipment pickup request.
+Below code initiates the shipment pickup request. This will be allowed only when the order is in delivered status.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -538,18 +568,27 @@ Below code initiates the shipment pickup request.
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  // Initiate Book shipment pick up
-  ShipmentPickUpResponse shipmentPickUpResponse = JobsOperationsExtensions.BookShipmentPickUp(
-                                                      dataBoxManagementClient.Jobs,
-                                                      resourceGroupName,
-                                                      jobName,
-                                                      shipmentPickUpRequest);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
 
-  Console.WriteLine("Confirmation number: {0}", shipmentPickUpResponse.ConfirmationNumber);
+  if (jobResource.Status == StageName.Delivered)
+  {
+      // Initiate Book shipment pick up
+      ShipmentPickUpResponse shipmentPickUpResponse = JobsOperationsExtensions.BookShipmentPickUp(
+                                                          dataBoxManagementClient.Jobs,
+                                                          resourceGroupName,
+                                                          jobName,
+                                                          shipmentPickUpRequest);
+
+      Console.WriteLine("Confirmation number: {0}", shipmentPickUpResponse.ConfirmationNumber);
+  }
   ```
 
 ### Get copy log Uri
-Below code fetches list of copy log uri for the specified order.
+Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in data copy or completed status.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -558,23 +597,35 @@ Below code fetches list of copy log uri for the specified order.
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  GetCopyLogsUriOutput copyLogsUriOutput = JobsOperationsExtensions.GetCopyLogsUri(
-                                            dataBoxManagementClient.Jobs,
-                                            resourceGroupName,
-                                            jobName);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
 
-  if (copyLogsUriOutput.CopyLogDetails != null)
+  if (jobResource.Status == StageName.DataCopy
+        || jobResource.Status == StageName.Completed
+        || jobResource.Status == StageName.CompletedWithErrors)
   {
-      Console.WriteLine("Copy log details");
-      foreach (AccountCopyLogDetails copyLogitem in copyLogsUriOutput.CopyLogDetails)
+      // Fetches the Copy log details
+      GetCopyLogsUriOutput copyLogsUriOutput = JobsOperationsExtensions.GetCopyLogsUri(
+                                                dataBoxManagementClient.Jobs,
+                                                resourceGroupName,
+                                                jobName);
+
+      if (copyLogsUriOutput.CopyLogDetails != null)
       {
-          Console.WriteLine(string.Concat("Account name: ", copyLogitem.AccountName, Environment.NewLine, "Copy log link: ", copyLogitem.CopyLogLink, Environment.NewLine, Environment.NewLine));
+          Console.WriteLine("Copy log details");
+          foreach (AccountCopyLogDetails copyLogitem in copyLogsUriOutput.CopyLogDetails)
+          {
+              Console.WriteLine(string.Concat("Account name: ", copyLogitem.AccountName, Environment.NewLine, "Copy log link: ", copyLogitem.CopyLogLink, Environment.NewLine, Environment.NewLine));
+          }
       }
   }
   ```
 
 ### List secrets
-Below code fetches list of unencrypted secrets related to the order.
+Below code fetches list of unencrypted secrets related to the order. This will be available only between device delivered and data copy statuses.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -583,61 +634,45 @@ Below code fetches list of unencrypted secrets related to the order.
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
-  UnencryptedSecrets secrets = ListSecretsOperationsExtensions.ListByJobs(
-                                dataBoxManagementClient.ListSecrets,
-                                resourceGroupName,
-                                jobName);
+  // Gets information about the specified job.
+  JobResource jobResource = JobsOperationsExtensions.Get(
+                              dataBoxManagementClient.Jobs,
+                              resourceGroupName,
+                              jobName);
 
-  PodJobSecrets podSecret = (PodJobSecrets) secrets.JobSecrets;
-
-  if (podSecret.PodSecrets != null)
+  if (jobResource.Status != null
+        && (int) jobResource.Status >= (int) StageName.Delivered
+        && (int) jobResource.Status <= (int) StageName.DataCopy)
   {
-      Console.WriteLine("Pod device credentails");
-      foreach (PodSecret accountCredentials in podSecret.PodSecrets)
-      {
-          Console.WriteLine(" Device serial number: {0}", accountCredentials.DeviceSerialNumber);
-          Console.WriteLine(" Device password: {0}", accountCredentials.DevicePassword);
+      // Fetches the list of unencrypted secrets
+      UnencryptedSecrets secrets = ListSecretsOperationsExtensions.ListByJobs(
+                                    dataBoxManagementClient.ListSecrets,
+                                    resourceGroupName,
+                                    jobName);
 
-          foreach (AccountCredentialDetails accountCredentialDetails in accountCredentials.AccountCredentialDetails)
+      PodJobSecrets podSecret = (PodJobSecrets) secrets.JobSecrets;
+
+      if (podSecret.PodSecrets != null)
+      {
+          Console.WriteLine("Pod device credentails");
+          foreach (PodSecret accountCredentials in podSecret.PodSecrets)
           {
-              Console.WriteLine("  Account name: {0}", accountCredentialDetails.AccountName);
-              foreach (ShareCredentialDetails shareCredentialDetails in accountCredentialDetails.ShareCredentialDetails)
+              Console.WriteLine(" Device serial number: {0}", accountCredentials.DeviceSerialNumber);
+              Console.WriteLine(" Device password: {0}", accountCredentials.DevicePassword);
+
+              foreach (AccountCredentialDetails accountCredentialDetails in accountCredentials.AccountCredentialDetails)
               {
-                  Console.WriteLine("   Share name: {0}", shareCredentialDetails.ShareName);
-                  Console.WriteLine("   User name: {0}", shareCredentialDetails.UserName);
-                  Console.WriteLine("   Password: {0}{1}", shareCredentialDetails.Password, Environment.NewLine);
+                  Console.WriteLine("  Account name: {0}", accountCredentialDetails.AccountName);
+                  foreach (ShareCredentialDetails shareCredentialDetails in accountCredentialDetails.ShareCredentialDetails)
+                  {
+                      Console.WriteLine("   Share name: {0}", shareCredentialDetails.ShareName);
+                      Console.WriteLine("   User name: {0}", shareCredentialDetails.UserName);
+                      Console.WriteLine("   Password: {0}{1}", shareCredentialDetails.Password, Environment.NewLine);
+                  }
               }
+              Console.WriteLine();
           }
-          Console.WriteLine();
+          Console.ReadLine();
       }
   }
-  ```
-
-### Get region availability
-Below code gives list of supported data box service regions and storage account regions based on Country input.
-
-  ```
-  // Input the location on which fetch the list of support regions. Support locations: West Europe, West Central US and West US
-  string location = "<location>";
-
-  // Initializes a new instance of the DataBoxManagementClient class
-  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
-  dataBoxManagementClient.Location = location;
-
-  // Choose the Country code from CountryCode list. eg. CountryCode.US
-  CountryCode countryCode = "<country-code>";
-
-  // Initializes a new instance of the RegionAvailabilityInput class.
-  RegionAvailabilityInput regionAvailabilityInput = new RegionAvailabilityInput(
-                                                      countryCode,
-                                                      DeviceType.Pod);
-
-  // Initiate to get list of support regions (service and storage account)
-  RegionAvailabilityResponse regionAvailabilityResponse = ServiceOperationsExtensions.RegionAvailability(
-                                                            dataBoxManagementClient.Service,
-                                                            regionAvailabilityInput);
-
-  // Get list of support regions
-  List<SupportedRegions> supportRegions = new List<SupportedRegions>();
-  supportRegions.AddRange(regionAvailabilityResponse.SupportedRegions);
   ```
