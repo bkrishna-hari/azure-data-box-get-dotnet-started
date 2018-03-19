@@ -20,7 +20,7 @@ ms.author: v-krburl
 # Get started with Azure DataBox using .NET
 
 ## Overview
- This article details how to create a sample .NET console application to initiate/communicate azure data box order.
+ This article details how to create a sample .NET console application to initiate/communicate azure data box order or job.
 
  ## Prerequisites
 
@@ -398,9 +398,10 @@ Below code creates a new Azure Data Box order.
   List<DestinationAccountDetails> destinationAccountDetails = new List<DestinationAccountDetails>();
   destinationAccountDetails.Add(new DestinationAccountDetails(string.Concat("/subscriptions/", subscriptionId.ToLower(), "/resourceGroups/", storageAccResourceGroupName.ToLower(), "/providers/", storageAccProviderType, "/storageAccounts/", storageAccName.ToLower()), accountType));
 
-  /// Note.
-  /// Add one or more storage accounts same as above
-  /// The storage accounts should be in the same Azure DataBox order's subscription and location (region).
+  // Note.
+  // For multiple destination storage accounts, follow above steps to add more accounts.
+  // All storage accounts should be in same location (region).
+  // The storage account(s) should be in same subscription as Azure DataBox order's.
 
   PodJobDetails jobDetails = new PodJobDetails(
                               contactDetails,
@@ -466,7 +467,8 @@ Below code creates a new Azure Data Box order.
 
   >[!Note:]
   > * Order name must be between 3 and 24 characters in length and use any alphanumeric and underscore only.
-  > * Azure Data Box order supports maximum 10 destination Storage accounts and all storage accounts should be in the same Azure Data Box order's subscription and location (region).
+  > * Azure Data Box order supports maximum 10 destination Storage accounts and all storage accounts should be in the same location (region).
+  > * The storage account(s) should be in same subscription as Azure DataBox order's.
   > * Good to validate the shipping address using ValidateAddressMethod call before Create order call which verifies the shipping address and returns Validation status. Also provides alternate address(es) based on input address in `Ambiguous` state.
 
 ### Cancel order
@@ -556,6 +558,10 @@ Below code provides shipping label sas uri. This will be available only after de
       Console.WriteLine("Shipping label url: \n{0}", shippingLabelDetails.ShippingLabelSasUri);
       Console.ReadLine();
   }
+  else
+  {
+      Console.WriteLine("Shipment address will be available only when the job is in delivered stage.");
+  }
   ```
 
 ### Book shipment pickup
@@ -591,10 +597,14 @@ Below code initiates the shipment pickup request. This will be allowed only when
 
       Console.WriteLine("Confirmation number: {0}", shipmentPickUpResponse.ConfirmationNumber);
   }
+  else
+  {
+      Console.WriteLine("Shipment pickup will be initiated only when the job is in delivered stage.");
+  }
   ```
 
 ### Get copy log Uri
-Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in data copy or completed status.
+Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in either data copy or completed status.
 
   ```
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
@@ -627,6 +637,10 @@ Below code fetches list of copy log uri for the specified order. This will be al
               Console.WriteLine(string.Concat("Account name: ", copyLogitem.AccountName, Environment.NewLine, "Copy log link: ", copyLogitem.CopyLogLink, Environment.NewLine, Environment.NewLine));
           }
           Console.ReadLine();
+      }
+      else
+      {
+          Console.WriteLine("Copy logs will be available only when the job is in either data copy or completed status.");
       }
   }
   ```
