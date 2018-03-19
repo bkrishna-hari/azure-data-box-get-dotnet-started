@@ -35,7 +35,7 @@ Before you begin, ensure that you have:
 
   >[!Note:]
   > * Assign **`Contributor`** role to the aad application that you created.
-  > * In above aritcle, it describes how to assign a "Reader" role, in the same way assign "Contributor" role.
+  > * In above article, it describes how to assign a "Reader" role, in the same way assign "Contributor" role.
 
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
@@ -266,15 +266,15 @@ Below code fetches list of available orders under Resource group.
 Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address.
 
   ```
-  AddressType addressType = <address-typ>; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
-  string companyName = "comapany-name";       // (Optional) Input the name of the company
-  string streetAddress1 = "<stree-address1>"; // Input the street address1
-  string streetAddress2 = "<stree-address2>"; // (Optional) Input the street address2
-  string streetAddress3 = "<stree-address3>"; // (Optional) Input the street address3
-  string postalCode = "<postal-code>";        // Input the area postal code
-  string city = "<city-name>";                // Input the name of the city
+  AddressType addressType = "<address-type>"; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
+  string companyName = "<company-name>";        // (Optional) Input the name of the company
+  string streetAddress1 = "<stree-address1>";   // Input the street address1
+  string streetAddress2 = "<stree-address2>";   // (Optional) Input the street address2
+  string streetAddress3 = "<stree-address3>";   // (Optional) Input the street address3
+  string postalCode = "<postal-code>";          // Input the area postal code
+  string city = "<city-name>";                  // Input the name of the city
   string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
-  CountryCode countryCode = <country-code>;   // Choose the Country code from CountryCode list. eg. CountryCode.US
+  CountryCode countryCode = "<country-code>";   // Choose the Country code from CountryCode list. eg. CountryCode.US
 
   ShippingAddress shippingAddress = new ShippingAddress()
   {
@@ -289,7 +289,8 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
       PostalCode = postalCode
   };
 
-  // Input the location on which shipping address to be validated; Support locations: West Europe, West Central US and West US
+  // Input the location on which shipping address to be validated
+  // Support locations: West Europe, West Central US and West US
   string location = "<location>";
 
   // Initializes a new instance of the DataBoxManagementClient class
@@ -300,7 +301,7 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
                                       shippingAddress,
                                       DeviceType.Pod);
 
-  AddressValidationOutput addressValidationOutput = ServiceOperationsExtensions.ValidateAddressMethod(
+  AddressValidationOutput addressValidateResult = ServiceOperationsExtensions.ValidateAddressMethod(
                                                       dataBoxManagementClient.Service,
                                                       validateAddress);
 
@@ -336,6 +337,7 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
                   Console.WriteLine("Zip extended code: {0}", address.ZipExtendedCode);
           }
       }
+      Console.ReadLine();
   }
   ```
 
@@ -343,15 +345,23 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
 Below code creates a new Azure Data Box order.
 
   ```
-  AddressType addressType = <address-typ>; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
-  string companyName = "comapany-name";       // (Optional) Input the name of the company
-  string streetAddress1 = "<stree-address1>"; // Input the street address1
-  string streetAddress2 = "<stree-address2>"; // (Optional) Input the street address2
-  string streetAddress3 = "<stree-address3>"; // (Optional) Input the street address3
-  string postalCode = "<postal-code>";        // Input the area postal code
-  string city = "<city-name>";                // Input the name of the city
+  // Input the location on which new azure data box job to be created
+  // Support locations: West Europe, West Central US and West US
+  string location = "<location>";
+
+  // Initializes a new instance of the DataBoxManagementClient class.
+  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
+  dataBoxManagementClient.Location = location;
+
+  AddressType addressType = "<address-type>";  // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
+  string companyName = "<company-name>";      // (Optional) Input the name of the company
+  string streetAddress1 = "<street-address1>"; // Input the street address1
+  string streetAddress2 = "<street-address2>"; // (Optional) Input the street address2
+  string streetAddress3 = "<street-address3>"; // (Optional) Input the street address3
+  string postalCode = "<postal-code>";         // Input the area postal code
+  string city = "<city-name>";                 // Input the name of the city
   string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
-  CountryCode countryCode = <country-code>;   // Choose the Country code from CountryCode list. eg. CountryCode.US
+  CountryCode countryCode = "<country-code>";  // Choose the Country code from CountryCode list. eg. CountryCode.US
 
   ShippingAddress shippingAddress = new ShippingAddress()
   {
@@ -370,8 +380,8 @@ Below code creates a new Azure Data Box order.
   string phoneNumber = "<phone-number>"; // Input the phone number
   string contactName = "<contact-name>"; // Input the name of the contact
 
-  List<string> emailList = new List<string>();
-  emailList = emailId.Split(new char[';'], StringSplitOptions.RemoveEmptyEntries).ToList();
+  List<string> emailList;
+  emailList = emailIds.Split(new char[';'], StringSplitOptions.RemoveEmptyEntries).ToList();
 
   ContactDetails contactDetails = new ContactDetails()
   {
@@ -383,30 +393,25 @@ Below code creates a new Azure Data Box order.
   string storageAccProviderType = "<storage-acc-provider-type>"; // Input the storage account provider type;  Valid types: Microsoft.Storage / Microsoft.ClassicStorage
   string storageAccResourceGroupName = "<storage-acc-resource-group>"; // Input the name of the storage account's resource group
   string storageAccName = "<storage-acc-name>"; // Input the name of the storage account
-  AccountType accountType = AccountType.GeneralPurposeStorage;  // Input the storage account type
+  AccountType accountType = "<account-type>";  // Choose account type from Storage AccountType list. eg. AccountType.GeneralPurposeStorage
 
   List<DestinationAccountDetails> destinationAccountDetails = new List<DestinationAccountDetails>();
   destinationAccountDetails.Add(new DestinationAccountDetails(string.Concat("/subscriptions/", subscriptionId.ToLower(), "/resourceGroups/", storageAccResourceGroupName.ToLower(), "/providers/", storageAccProviderType, "/storageAccounts/", storageAccName.ToLower()), accountType));
 
   /// Note.
-  /// if you need multiple destination storage accounts,
-  /// add other storage account details below same as above.
+  /// Add one or more storage accounts same as above
+  /// The storage accounts should be in the same Azure DataBox order's subscription and location (region).
 
   PodJobDetails jobDetails = new PodJobDetails(
                               contactDetails,
                               shippingAddress);
 
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string location = "<location>"; // Input the location on which new azure data box job to be created; Support locations: West Europe, West Central US and West US
   string jobName = "<job-name>";  // Input the name of the job
 
   // Initializes a new instance of the JobResource class
   JobResource newJobResource = new JobResource(location, destinationAccountDetails, jobDetails);
   newJobResource.DeviceType = DeviceType.Pod;
-
-  // Initializes a new instance of the DataBoxManagementClient class.
-  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
-  dataBoxManagementClient.Location = location;
 
   // Validate shipping address
   AddressValidationOutput addressValidateResult = ServiceOperationsExtensions.ValidateAddressMethod(
@@ -416,7 +421,7 @@ Below code creates a new Azure Data Box order.
                                                       newJobResource.DeviceType));
 
   // Checks validation address result
-  if(addressValidateResult.ValidationStatus != AddressValidationStatus.Valid)
+  if (addressValidateResult.ValidationStatus != AddressValidationStatus.Valid)
   {
       Console.WriteLine("Address validation status: {0}", addressValidateResult.ValidationStatus);
 
@@ -456,6 +461,7 @@ Below code creates a new Azure Data Box order.
                               resourceGroupName,
                               jobName,
                               newJobResource);
+
   ```
 
   >[!Note:]
@@ -559,8 +565,8 @@ Below code initiates the shipment pickup request. This will be allowed only when
   string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
   string jobName = "<job-name>";  // Input the name of the job within the specified resource group
 
-  DateTime dtStartTime = new DateTime(<start-time>); // Minimum date after which the pick up should commence, this must be in local time of pick up area.
-  DateTime dtEndTime = new DateTime(<end-time>); // Maximum date before which the pick up should commence, this must be in local time of pick up area.
+  DateTime dtStartTime = new DateTime("<start-time>"); // Minimum date after which the pick up should commence, this must be in local time of pick up area.
+  DateTime dtEndTime = new DateTime("<end-time>"); // Maximum date before which the pick up should commence, this must be in local time of pick up area.
   string shipmentLocation = "<shipment-location>"; // Input shipment location in the pickup place. eg. front desk
 
   ShipmentPickUpRequest shipmentPickUpRequest = new ShipmentPickUpRequest(dtStartTime, dtEndTime, shipmentLocation);
@@ -620,6 +626,7 @@ Below code fetches list of copy log uri for the specified order. This will be al
           {
               Console.WriteLine(string.Concat("Account name: ", copyLogitem.AccountName, Environment.NewLine, "Copy log link: ", copyLogitem.CopyLogLink, Environment.NewLine, Environment.NewLine));
           }
+          Console.ReadLine();
       }
   }
   ```
@@ -641,8 +648,8 @@ Below code fetches list of unencrypted secrets related to the order. This will b
                               jobName);
 
   if (jobResource.Status != null
-        && (int) jobResource.Status >= (int) StageName.Delivered
-        && (int) jobResource.Status <= (int) StageName.DataCopy)
+        && (int)jobResource.Status > (int)StageName.Dispatched
+        && (int)jobResource.Status < (int)StageName.Completed)
   {
       // Fetches the list of unencrypted secrets
       UnencryptedSecrets secrets = ListSecretsOperationsExtensions.ListByJobs(
