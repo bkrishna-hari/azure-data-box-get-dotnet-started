@@ -76,8 +76,8 @@ Now, add Azure Data Box dll present in the [dlls folder](https://github.com/bkri
   ![Add reference](media/azure-data-box-dotnet-sdk/add-reference.png)
 
 
-### Configure your confirguration settings
-  To configure your configuration settings, open the `app.config` file from Solution Explorer in Visual Studio. Add the contents of the <appSettings> element shown below. Replace `tenatnt-id` with the tenant ID of the subscription, `subscription-id` with the subscription ID, `aad-application-id` with application ID for which the service principal was set, and `aad-application-key` with application authentication key for which the AAD application:
+### Configure your configuration settings
+  To configure your configuration settings, open the `app.config` file from Solution Explorer in Visual Studio. Add the contents of the <appSettings> element shown below. Replace `tenant-id` with the tenant ID of the subscription, `subscription-id` with the subscription ID, `aad-application-id` with application ID for which the service principal was set, and `aad-application-key` with application authentication key for which the AAD application:
 
   ```
   <configuration>
@@ -112,9 +112,9 @@ Below packages you need to reference in your project to complete this tutorial:
 You can use NuGet to obtain all packages. Follow these steps:
 
   1. Right-click your project in **Solution Explorer**, and choose **Manage NuGet Packages** **&gt;** Click **Browse** tab.
-  2. Searh online for "Newtonsoft.Json", and click **Install** to install the Newtonsoft Json library.
-  3. Searh online for "Microsoft.Rest.ClientRuntime.Azure", and click **Install** to install the Microsoft Azure Client Runtime library.
-  4. Searh online for "Microsoft.Rest.ClientRuntime.Azure.Authentication", and click **Install** to install the Microsoft Azure Authentication library and its dependencies.
+  2. Search online for "Newtonsoft.Json", and click **Install** to install the Newtonsoft Json library.
+  3. Search online for "Microsoft.Rest.ClientRuntime.Azure", and click **Install** to install the Microsoft Azure Client Runtime library.
+  4. Search online for "Microsoft.Rest.ClientRuntime.Azure.Authentication", and click **Install** to install the Microsoft Azure Authentication library and its dependencies.
   5. Search online for "WindowsAzure.ConfigurationManager", and click **Install** to install the Microsoft Azure Configuration Manager Library.
 
 
@@ -150,7 +150,7 @@ Add below code after `Main()` method:
       const string frontDoorUrl = "https://login.microsoftonline.com";
       const string tokenUrl = "https://management.azure.com";
 
-      // Set the configuration parameters.
+      // Set the configuration parameters
       tenantId = CloudConfigurationManager.GetSetting("TenantId");
       subscriptionId = CloudConfigurationManager.GetSetting("SubscriptionId");
       aadApplicationId = CloudConfigurationManager.GetSetting("AADApplicationId");
@@ -168,8 +168,10 @@ Add below code after `Main()` method:
                               ValidateAuthority = true,
                           }).GetAwaiter().GetResult();
 
-      // Initializes a new instance of the DataBoxManagementClient class.
-      DataBoxManagementClient dataBoxManagementClient = new DataBoxManagementClient(credentials);
+      // Initializes a new instance of the DataBoxManagementClient class
+      DataBoxManagementClient dataBoxManagementClient =
+          new DataBoxManagementClient(
+            credentials);
 
       // Set SubscriptionId
       dataBoxManagementClient.SubscriptionId = subscriptionId;
@@ -184,9 +186,14 @@ Below code fetches information about the specified order.
   ```
   static void Main(string[] args)
   {
-      string resourceGroupName = "<resource-group-name>"; // Name of the resource group on which to retrieve job details
-      string jobName = "<job-name>"; // Name of the job within the specified resource group
-      string expand = "details";     // Gets job complete info (details) or basic (null) info
+      // Name of the resource group on which to retrieve job details
+      string resourceGroupName = "<resource-group-name>";
+
+      // Name of the job within the specified resource group
+      string jobName = "<job-name>";
+
+      // Gets job complete info (details) or basic (null) info
+      string expand = "details";
 
       // Initializes a new instance of the DataBoxManagementClient class.
       DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -234,14 +241,14 @@ Below code fetches list of available orders under the subscription.
 Below code fetches list of available orders under Resource group.
 
   ```
+  // Input the name of the resource group on which to retrieve list of jobs
+  string resourceGroupName = "<resource-group-name>";
+
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
 
   IPage<JobResource> jobPageList = null;
   List<JobResource> jobList = new List<JobResource>();
-
-  // Input the name of the resource group on which to retrieve list of jobs
-  string resourceGroupName = "<resource-group-name>";
 
   do
   {
@@ -266,15 +273,32 @@ Below code fetches list of available orders under Resource group.
 Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address.
 
   ```
-  AddressType addressType = "<address-type>"; // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
-  string companyName = "<company-name>";        // (Optional) Input the name of the company
-  string streetAddress1 = "<stree-address1>";   // Input the street address1
-  string streetAddress2 = "<stree-address2>";   // (Optional) Input the street address2
-  string streetAddress3 = "<stree-address3>";   // (Optional) Input the street address3
-  string postalCode = "<postal-code>";          // Input the area postal code
-  string city = "<city-name>";                  // Input the name of the city
-  string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
-  CountryCode countryCode = "<country-code>";   // Choose the Country code from CountryCode list. eg. CountryCode.US
+  // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
+  AddressType addressType = "<address-type>";
+
+  // (Optional) Input the name of the company
+  string companyName = "<company-name>";
+
+  // Input the street address1
+  string streetAddress1 = "<street-address1>";
+
+  // (Optional) Input the street address2
+  string streetAddress2 = "<street-address2>";
+
+  // (Optional) Input the street address3
+  string streetAddress3 = "<street-address3>";   
+
+  // Input the area postal code
+  string postalCode = "<postal-code>";          
+
+  // Input the name of the city
+  string city = "<city-name>";                  
+
+  // Input the state or province code. Like CA - California; FL - Florida; NY - New York
+  string stateOrProvinceCode = "<state-or-province-code>";
+
+  // Choose the Country code from CountryCode list. eg. CountryCode.US
+  CountryCode countryCode = "<country-code>";   
 
   ShippingAddress shippingAddress = new ShippingAddress()
   {
@@ -297,13 +321,15 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
   dataBoxManagementClient.Location = location;
 
-  ValidateAddress validateAddress = new ValidateAddress(
-                                      shippingAddress,
-                                      DeviceType.Pod);
+  ValidateAddress validateAddress =
+      new ValidateAddress(
+            shippingAddress,
+            DeviceType.Pod);
 
-  AddressValidationOutput addressValidateResult = ServiceOperationsExtensions.ValidateAddressMethod(
-                                                      dataBoxManagementClient.Service,
-                                                      validateAddress);
+  AddressValidationOutput addressValidateResult =
+      ServiceOperationsExtensions.ValidateAddressMethod(
+          dataBoxManagementClient.Service,
+          validateAddress);
 
   // Checks validation address result
   if(addressValidateResult.ValidationStatus != AddressValidationStatus.Valid)
@@ -353,15 +379,32 @@ Below code creates a new Azure Data Box order.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
   dataBoxManagementClient.Location = location;
 
-  AddressType addressType = "<address-type>";  // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
-  string companyName = "<company-name>";      // (Optional) Input the name of the company
-  string streetAddress1 = "<street-address1>"; // Input the street address1
-  string streetAddress2 = "<street-address2>"; // (Optional) Input the street address2
-  string streetAddress3 = "<street-address3>"; // (Optional) Input the street address3
-  string postalCode = "<postal-code>";         // Input the area postal code
-  string city = "<city-name>";                 // Input the name of the city
-  string stateOrProvinceCode = "<state-or-province-code>"; // Input the state or province code. Like CA - California; FL - Florida; NY - New York
-  CountryCode countryCode = "<country-code>";  // Choose the Country code from CountryCode list. eg. CountryCode.US
+  // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
+  AddressType addressType = "<address-type>";
+
+  // (Optional) Input the name of the company
+  string companyName = "<company-name>";
+
+  // Input the street address1
+  string streetAddress1 = "<street-address1>";
+
+  // (Optional) Input the street address2
+  string streetAddress2 = "<street-address2>";
+
+  // (Optional) Input the street address3
+  string streetAddress3 = "<street-address3>";
+
+  // Input the area postal code
+  string postalCode = "<postal-code>";         
+
+  // Input the name of the city
+  string city = "<city-name>";                 
+
+  // Input the state or province code. Like CA - California; FL - Florida; NY - New York
+  string stateOrProvinceCode = "<state-or-province-code>";
+
+  // Choose the Country code from CountryCode list. eg. CountryCode.US
+  CountryCode countryCode = "<country-code>";  
 
   ShippingAddress shippingAddress = new ShippingAddress()
   {
@@ -376,9 +419,14 @@ Below code creates a new Azure Data Box order.
       PostalCode = postalCode
   };
 
-  string emailIds = "<notification-email-ids>";   // Input a semicolon (;) separated string of email ids, eg. "abc@outlook.com;xyz@outlook.com"
-  string phoneNumber = "<phone-number>"; // Input the phone number
-  string contactName = "<contact-name>"; // Input the name of the contact
+  // Input a semicolon (;) separated string of email ids, eg. "abc@outlook.com;xyz@outlook.com"
+  string emailIds = "<notification-email-ids>";
+
+  // Input the phone number
+  string phoneNumber = "<phone-number>";
+
+  // Input the name of the contact
+  string contactName = "<contact-name>";
 
   List<string> emailList;
   emailList = emailIds.Split(new char[';'], StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -390,13 +438,26 @@ Below code creates a new Azure Data Box order.
       ContactName = contactName
   };
 
-  string storageAccProviderType = "<storage-acc-provider-type>"; // Input the storage account provider type;  Valid types: Microsoft.Storage / Microsoft.ClassicStorage
-  string storageAccResourceGroupName = "<storage-acc-resource-group>"; // Input the name of the storage account's resource group
-  string storageAccName = "<storage-acc-name>"; // Input the name of the storage account
-  AccountType accountType = "<account-type>";  // Choose account type from Storage AccountType list. eg. AccountType.GeneralPurposeStorage
+  // Input the storage account provider type;  Valid types: Microsoft.Storage / Microsoft.ClassicStorage
+  string storageAccProviderType = "<storage-acc-provider-type>";
+
+  // Input the name of the storage account's resource group
+  string storageAccResourceGroupName = "<storage-acc-resource-group>";
+
+  // Input the name of the storage account
+  string storageAccName = "<storage-acc-name>";
+
+  // Choose account type from Storage AccountType list. eg. AccountType.GeneralPurposeStorage
+  AccountType accountType = "<account-type>";
 
   List<DestinationAccountDetails> destinationAccountDetails = new List<DestinationAccountDetails>();
-  destinationAccountDetails.Add(new DestinationAccountDetails(string.Concat("/subscriptions/", subscriptionId.ToLower(), "/resourceGroups/", storageAccResourceGroupName.ToLower(), "/providers/", storageAccProviderType, "/storageAccounts/", storageAccName.ToLower()), accountType));
+  destinationAccountDetails.Add(
+      new DestinationAccountDetails(
+          string.Concat("/subscriptions/", subscriptionId.ToLower(),
+              "/resourceGroups/", storageAccResourceGroupName.ToLower(),
+              "/providers/", storageAccProviderType,
+              "/storageAccounts/", storageAccName.ToLower()),
+          accountType));
 
   // Note.
   // For multiple destination storage accounts, follow above steps to add more accounts.
@@ -411,15 +472,18 @@ Below code creates a new Azure Data Box order.
   string jobName = "<job-name>";  // Input the name of the job
 
   // Initializes a new instance of the JobResource class
-  JobResource newJobResource = new JobResource(location, destinationAccountDetails, jobDetails);
+  JobResource newJobResource = new JobResource(location,
+                                  destinationAccountDetails,
+                                  jobDetails);
   newJobResource.DeviceType = DeviceType.Pod;
 
   // Validate shipping address
-  AddressValidationOutput addressValidateResult = ServiceOperationsExtensions.ValidateAddressMethod(
-                                                    dataBoxManagementClient.Service,
-                                                    new ValidateAddress(
-                                                      shippingAddress,
-                                                      newJobResource.DeviceType));
+  AddressValidationOutput addressValidateResult =
+      ServiceOperationsExtensions.ValidateAddressMethod(
+          dataBoxManagementClient.Service,
+          new ValidateAddress(
+            shippingAddress,
+            newJobResource.DeviceType));
 
   // Checks validation address result
   if (addressValidateResult.ValidationStatus != AddressValidationStatus.Valid)
@@ -462,7 +526,6 @@ Below code creates a new Azure Data Box order.
                               resourceGroupName,
                               jobName,
                               newJobResource);
-
   ```
 
   >[!Note:]
@@ -475,9 +538,14 @@ Below code creates a new Azure Data Box order.
 Below code cancels the order. This will be allowed only until the order is not processed.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
-  string reason = "<reason-for-cancellation>"; // Input the reason for cancellation
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
+
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
+
+  // Input the reason for cancellation
+  string reason = "<reason-for-cancellation>";
 
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -503,11 +571,14 @@ Below code cancels the order. This will be allowed only until the order is not p
   ```
 
 ### Delete order
-Below code deletes the order. This will be allowed only when the order is in completed or cancelled status.
+Below code deletes the order. This will be allowed only when the order is in completed or canceled status.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
+
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
 
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -534,8 +605,11 @@ Below code deletes the order. This will be allowed only when the order is in com
 Below code provides shipping label sas uri. This will be available only after device allocation.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
+
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
 
   // Initializes a new instance of the DataBoxManagementClient class.
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -549,10 +623,11 @@ Below code provides shipping label sas uri. This will be available only after de
   if (jobResource.Status == StageName.Delivered)
   {
       // Initiate to download shipping label
-      ShippingLabelDetails shippingLabelDetails = JobsOperationsExtensions.DownloadShippingLabelUri(
-                                                    dataBoxManagementClient.Jobs,
-                                                    resourceGroupName,
-                                                    jobName);
+      ShippingLabelDetails shippingLabelDetails =
+          JobsOperationsExtensions.DownloadShippingLabelUri(
+              dataBoxManagementClient.Jobs,
+              resourceGroupName,
+              jobName);
 
       // Print the shipping label uri
       Console.WriteLine("Shipping label url: \n{0}", shippingLabelDetails.ShippingLabelSasUri);
@@ -568,14 +643,25 @@ Below code provides shipping label sas uri. This will be available only after de
 Below code initiates the shipment pickup request. This will be allowed only when the order is in delivered status.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
 
-  DateTime dtStartTime = new DateTime("<start-time>"); // Minimum date after which the pick up should commence, this must be in local time of pick up area.
-  DateTime dtEndTime = new DateTime("<end-time>"); // Maximum date before which the pick up should commence, this must be in local time of pick up area.
-  string shipmentLocation = "<shipment-location>"; // Input shipment location in the pickup place. eg. front desk
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
 
-  ShipmentPickUpRequest shipmentPickUpRequest = new ShipmentPickUpRequest(dtStartTime, dtEndTime, shipmentLocation);
+  // Minimum date after which the pick up should commence, this must be in local time of pick up area.
+  DateTime dtStartTime = new DateTime("<start-time>");
+
+  // Maximum date before which the pick up should commence, this must be in local time of pick up area.
+  DateTime dtEndTime = new DateTime("<end-time>");
+
+  // Input shipment location in the pickup place. eg. front desk
+  string shipmentLocation = "<shipment-location>";
+
+  ShipmentPickUpRequest shipmentPickUpRequest = new ShipmentPickUpRequest(
+                                                  dtStartTime,
+                                                  dtEndTime,
+                                                  shipmentLocation);
 
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -607,8 +693,11 @@ Below code initiates the shipment pickup request. This will be allowed only when
 Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in either data copy or completed status.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
+
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
 
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -649,8 +738,11 @@ Below code fetches list of copy log uri for the specified order. This will be al
 Below code fetches list of unencrypted secrets related to the order. This will be available only between device delivered and data copy statuses.
 
   ```
-  string resourceGroupName = "<resource-group-name>"; // Input the name of the resource group
-  string jobName = "<job-name>";  // Input the name of the job within the specified resource group
+  // Input the name of the resource group
+  string resourceGroupName = "<resource-group-name>";
+
+  // Input the name of the job within the specified resource group
+  string jobName = "<job-name>";  
 
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -675,7 +767,7 @@ Below code fetches list of unencrypted secrets related to the order. This will b
 
       if (podSecret.PodSecrets != null)
       {
-          Console.WriteLine("Pod device credentails");
+          Console.WriteLine("Pod device credentials");
           foreach (PodSecret accountCredentials in podSecret.PodSecrets)
           {
               Console.WriteLine(" Device serial number: {0}", accountCredentials.DeviceSerialNumber);
