@@ -57,7 +57,7 @@ In Visual Studio, create a new Windows console application. The following steps 
 
   ![Create new project](media/azure-data-box-dotnet-sdk/create-new-project.png)
 
-  3. Select **Installed &gt; Templates &gt; Visual C# &gt; Console Application**.
+  3. Select **Installed &gt; Templates &gt; Visual C# &gt; Console Application**. Make sure you choose .Net Framework 4.6.2 as shown in the figure.
   4. In the **Name** field, enter a name for your application and browse **Location**.
   5. Click **OK** to create the project.
 
@@ -101,14 +101,14 @@ Now, add Azure Data Box dll present in the [dlls folder](https://github.com/bkri
 
 
 ### Use NuGet to install the required packages
-Below packages you need to reference in your project to complete this tutorial:
+You need to reference the following nuget packages in your project:
 
   * [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/). This package is a popular high-performance JSON framework for .NET.
   * [Microsoft.Rest.ClientRuntime.Azure](https://www.nuget.org/packages/Microsoft.Rest.ClientRuntime.Azure). This package provides common error handling, tracing, and HTTP/REST-based pipeline manipulation.
   * [Microsoft.Rest.ClientRuntime.Azure.Authentication](https://www.nuget.org/packages/Microsoft.Rest.ClientRuntime.Azure.Authentication). This package provides ADAL (Azure Active Directory Authentication Library) based authentication for Azure management client libraries.
   * [Microsoft.WindowsAzure.ConfigurationManager](https://www.nuget.org/packages/Microsoft.WindowsAzure.ConfigurationManager). This package provides a class for parsing a connection string in a configuration file, regardless of where your application is running.
 
-You can use NuGet to obtain all packages. Follow these steps:
+To do this, follow these steps:
 
   1. Right-click your project in **Solution Explorer**, and choose **Manage NuGet Packages** **&gt;** Click **Browse** tab.
   2. Search online for "Newtonsoft.Json", and click **Install** to install the Newtonsoft Json library.
@@ -180,7 +180,7 @@ Add below code after `Main()` method:
   ```
 
 ### Fetch order details
-Below code fetches information about the specified order.
+The code below fetches information about the specified order. Replace your main function with the following snippet. You will need to enter the resource group name and job name in the code.
 
   ```
   static void Main(string[] args)
@@ -209,7 +209,7 @@ Below code fetches information about the specified order.
 In Get call, `$expand` variable is supported on `details` parameter for order, which returns order stages, contact information and etc. Otherwise set `null` value to `$expand` variable which gets only basic information.
 
 ### List orders
-Below code fetches list of available orders under the subscription.
+Below code fetches list of available orders under the subscription. Add it into the main function that you already have in your code.
 
   ```
   // Initializes a new instance of the DataBoxManagementClient class.
