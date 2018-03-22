@@ -30,13 +30,12 @@ Before you begin, ensure that you have:
     - Azure Data Box Client Library for .NET, download below dependent dll
       - [Microsoft.Azure.Management.DataBox.dll](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/dlls/Microsoft.Azure.Management.DataBox.dll?raw=true)
 
-## Setup Azure Service Principal
-* Need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) for your Azure Subscription for this sample application to run it.
+## Set up Azure Service Principal
+* You need to setup [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) in your Azure Subscription for this sample application. This will give this application permission to create, track Data Box orders.
 
   >[!Note:]
-  > * Assign **`Contributor`** role to the aad application that you created.
-  > * In above article, it describes how to assign a "Reader" role, in the same way assign "Contributor" role.
-
+  > * Assign **`Contributor`** role to the AAD application. In the above article, a "Reader" role is described.
+  
 <!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
 * Once your AAD App is ready; fetch the following values:
   * Tenant ID
@@ -45,7 +44,7 @@ Before you begin, ensure that you have:
   * Active Directory key
 
 ## Code sample
-[Getting Started with Azure Data Box](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/samples/TutorialConsoleApplication.zip?raw=true) project in .NET. You can download the sample application and run it.
+We have provided a sample Visual Studio console application here: [Getting Started with Azure Data Box](https://github.com/bkrishna-hari/azure-data-box-get-dotnet-started/blob/master/samples/TutorialConsoleApplication.zip?raw=true). If you want to create this application from scratch, please continue with the following steps. Else, you can download this application and run it.
 
 ## Set up your development environment
 Set up your development environment in Visual Studio so you're ready to try examples in this guide.
