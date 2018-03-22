@@ -35,8 +35,7 @@ Before you begin, ensure that you have:
 
   >[!Note:]
   > * Assign **`Contributor`** role to the AAD application. In the above article, a "Reader" role is described.
-  
-<!--1. To retrieve the configuration parameters, see [Azure Active Directory Service Principal credentials](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) document, which describes how to create an Azure Active Directory application and service principal that can access resources.-->
+
 * Once your AAD App is ready; fetch the following values:
   * Tenant ID
   * Subscription ID
@@ -141,6 +140,7 @@ Add the following statements before `Main()` method:
 
 ### Initialize Data Box Management Client
 The DataBoxManagementClient class enables you to create a new Data Box order or job, retrieve order details, cancel/delete order, validate shipping address and etc.
+
 Add below code after `Main()` method:
 
   ```
@@ -180,7 +180,7 @@ Add below code after `Main()` method:
   ```
 
 ### Fetch order details
-The code below fetches information about the specified order. Replace your main function with the following snippet. You will need to enter the resource group name and job name in the code.
+The code below fetches information about the specified order. Replace your Main() method with the following snippet. You will need to enter the resource group name and job name in the code.
 
   ```
   static void Main(string[] args)
@@ -209,7 +209,7 @@ The code below fetches information about the specified order. Replace your main 
 In Get call, `$expand` variable is supported on `details` parameter for order, which returns order stages, contact information and etc. Otherwise set `null` value to `$expand` variable which gets only basic information.
 
 ### List orders
-Below code fetches list of available orders under the subscription. Add it into the main function that you already have in your code.
+Below code fetches list of available orders under the subscription. Add it into the Main() method that you already have in your code.
 
   ```
   // Initializes a new instance of the DataBoxManagementClient class.
@@ -237,7 +237,7 @@ Below code fetches list of available orders under the subscription. Add it into 
   ```
 
 ### List the orders by Resource group
-Below code fetches list of available orders under Resource group.
+Below code fetches list of available orders under Resource group. Add it into the Main() method that you already have in your code. You will need to enter the resource group name in the code.
 
   ```
   // Input the name of the resource group on which to retrieve list of jobs
@@ -269,9 +269,17 @@ Below code fetches list of available orders under Resource group.
   ```
 
 ### Validate shipping address
-Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address.
+Below code validates shipping address whether it is valid or not. In ambiguous state, provides alternate address(es) based on input address. Add it into the Main() method that you already have in your code. You will need to enter the location, shipping address details (like address type, company name, street info, postal code, city, state/province code, country) in the code.
 
   ```
+  // Input the location on which shipping address to be validated
+  // Support locations: West Europe, West Central US and West US
+  string location = "<location>";
+
+  // Initializes a new instance of the DataBoxManagementClient class
+  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
+  dataBoxManagementClient.Location = location;
+
   // (Optional) Choose the Address type from AddressType list. eg. AddressType.None (Default value)
   AddressType addressType = "<address-type>";
 
@@ -311,14 +319,6 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
       Country = countryCode.ToString(),
       PostalCode = postalCode
   };
-
-  // Input the location on which shipping address to be validated
-  // Support locations: West Europe, West Central US and West US
-  string location = "<location>";
-
-  // Initializes a new instance of the DataBoxManagementClient class
-  DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
-  dataBoxManagementClient.Location = location;
 
   ValidateAddress validateAddress =
       new ValidateAddress(
@@ -367,7 +367,7 @@ Below code validates shipping address whether it is valid or not. In ambiguous s
   ```
 
 ### Create a new Order
-Below code creates a new Azure Data Box order.
+Below code creates a new Azure Data Box order. Add it into the Main() method that you already have in your code. You will need to enter the location, shipping address details (like address type, company name, street info, postal code, city, state/province code, country), contact details (like contact name, notification email list, phone number) and destination storage account details (like resource group name, provider type, account name, account type) in the code.
 
   ```
   // Input the location on which new azure data box job to be created
@@ -534,7 +534,7 @@ Below code creates a new Azure Data Box order.
   > * Good to validate the shipping address using ValidateAddressMethod call before Create order call which verifies the shipping address and returns Validation status. Also provides alternate address(es) based on input address in `Ambiguous` state.
 
 ### Cancel order
-Below code cancels the order. This will be allowed only until the order is not processed.
+Below code cancels the order. This will be allowed only until the order is not processed. Add it into the Main() method that you already have in your code. You will need to enter the resource group name, job name and reason in the code.
 
   ```
   // Input the name of the resource group
@@ -570,7 +570,7 @@ Below code cancels the order. This will be allowed only until the order is not p
   ```
 
 ### Delete order
-Below code deletes the order. This will be allowed only when the order is in completed or canceled status.
+Below code deletes the order. This will be allowed only when the order is in completed or canceled status. Add it into the Main() method that you already have in your code. You will need to enter the resource group name and job name in the code.
 
   ```
   // Input the name of the resource group
@@ -601,7 +601,7 @@ Below code deletes the order. This will be allowed only when the order is in com
   ```
 
 ### Download shipping address
-Below code provides shipping label sas uri. This will be available only after device allocation.
+Below code provides shipping label sas uri. This will be available only after device allocation. Add it into the Main() method that you already have in your code. You will need to enter the resource group name and job name in the code.
 
   ```
   // Input the name of the resource group
@@ -639,7 +639,7 @@ Below code provides shipping label sas uri. This will be available only after de
   ```
 
 ### Book shipment pickup
-Below code initiates the shipment pickup request. This will be allowed only when the order is in delivered status.
+Below code initiates the shipment pickup request. This will be allowed only when the order is in delivered status. Add it into the Main() method that you already have in your code. You will need to enter the resource group name, job name start time, end time and shipment location in the code.
 
   ```
   // Input the name of the resource group
@@ -657,10 +657,11 @@ Below code initiates the shipment pickup request. This will be allowed only when
   // Input shipment location in the pickup place. eg. front desk
   string shipmentLocation = "<shipment-location>";
 
-  ShipmentPickUpRequest shipmentPickUpRequest = new ShipmentPickUpRequest(
-                                                  dtStartTime,
-                                                  dtEndTime,
-                                                  shipmentLocation);
+  ShipmentPickUpRequest shipmentPickUpRequest =
+      new ShipmentPickUpRequest(
+          dtStartTime,
+          dtEndTime,
+          shipmentLocation);
 
   // Initializes a new instance of the DataBoxManagementClient class
   DataBoxManagementClient dataBoxManagementClient = InitializeDataBoxClient();
@@ -689,7 +690,7 @@ Below code initiates the shipment pickup request. This will be allowed only when
   ```
 
 ### Get copy log Uri
-Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in either data copy or completed status.
+Below code fetches list of copy log uri for the specified order. This will be allowed only when the order is in either data copy or completed status. Add it into the Main() method that you already have in your code. You will need to enter the resource group name and job name in the code.
 
   ```
   // Input the name of the resource group
@@ -733,8 +734,8 @@ Below code fetches list of copy log uri for the specified order. This will be al
   }
   ```
 
-### List secrets
-Below code fetches list of unencrypted secrets related to the order. This will be available only between device delivered and data copy statuses.
+### List device credentials
+Below code fetches list of unencrypted device secrets related to the order (like device credentials and share credentials). This will be available only between device delivered and data copy statuses. Add it into the Main() method that you already have in your code. You will need to enter the resource group name and job name in the code.
 
   ```
   // Input the name of the resource group
@@ -754,7 +755,7 @@ Below code fetches list of unencrypted secrets related to the order. This will b
 
   if (jobResource.Status != null
         && (int)jobResource.Status > (int)StageName.Dispatched
-        && (int)jobResource.Status < (int)StageName.Completed)
+        && (int)jobResource.Status < (int)StageName.AtAzureDC)
   {
       // Fetches the list of unencrypted secrets
       UnencryptedSecrets secrets = ListSecretsOperationsExtensions.ListByJobs(
@@ -762,11 +763,11 @@ Below code fetches list of unencrypted secrets related to the order. This will b
                                     resourceGroupName,
                                     jobName);
 
-      PodJobSecrets podSecret = (PodJobSecrets) secrets.JobSecrets;
+      PodJobSecrets podSecret = (PodJobSecrets)secrets.JobSecrets;
 
       if (podSecret.PodSecrets != null)
       {
-          Console.WriteLine("Pod device credentials");
+          Console.WriteLine("Device credentials");
           foreach (PodSecret accountCredentials in podSecret.PodSecrets)
           {
               Console.WriteLine(" Device serial number: {0}", accountCredentials.DeviceSerialNumber);
@@ -774,15 +775,15 @@ Below code fetches list of unencrypted secrets related to the order. This will b
 
               foreach (AccountCredentialDetails accountCredentialDetails in accountCredentials.AccountCredentialDetails)
               {
-                  Console.WriteLine("  Account name: {0}", accountCredentialDetails.AccountName);
+                  Console.WriteLine("\n   Storage account name: {0}", accountCredentialDetails.AccountName);
+                  Console.WriteLine("   Share details: ");
                   foreach (ShareCredentialDetails shareCredentialDetails in accountCredentialDetails.ShareCredentialDetails)
                   {
-                      Console.WriteLine("   Share name: {0}", shareCredentialDetails.ShareName);
-                      Console.WriteLine("   User name: {0}", shareCredentialDetails.UserName);
-                      Console.WriteLine("   Password: {0}{1}", shareCredentialDetails.Password, Environment.NewLine);
+                      Console.WriteLine("    Share name: {0}", shareCredentialDetails.ShareName);
+                      Console.WriteLine("    User name: {0}", shareCredentialDetails.UserName);
+                      Console.WriteLine("    Password: {0}{1}", shareCredentialDetails.Password, Environment.NewLine);
                   }
               }
-              Console.WriteLine();
           }
           Console.ReadLine();
       }
